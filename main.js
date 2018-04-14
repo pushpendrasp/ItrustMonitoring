@@ -13,76 +13,48 @@ var io = require('socket.io')(3000);
 // /// CHILDREN instances
 var instanceServers =
 [
-        {url:`http://${itrust_1}:8080/iTrust2/login`, latency: 0},
-        {url:`http://${itrust_2}:8080/iTrust2/login`, latency: 0},
-        {url:`http://${itrust_3}:8080/iTrust2/login`, latency: 0},
-        {url:`http://${itrust_4}:8080/iTrust2/login`, latency: 0},
-        {url:`http://${itrust_5}:8080/iTrust2/login`, latency: 0}
+        {url:`http://${itrust_1}:8080/iTrust2/login`, status: 404},
+        {url:`http://${itrust_2}:8080/iTrust2/login`, status: 404},
+        {url:`http://${itrust_3}:8080/iTrust2/login`, status: 404},
+        {url:`http://${itrust_4}:8080/iTrust2/login`, status: 404},
+        {url:`http://${itrust_5}:8080/iTrust2/login`, status: 404}
 ];
 
 
-function measureLatenancy(server)
+function measureStatus(server)
 {
         var options =
         {
                 url: server.url
         };
-        let start = Date.now();
         // console.log("request to url");
         request(options, function (error, res, body)
         {
                 console.log( error || res.statusCode, server.url);
-                let end = Date.now();
-                server.latency = end-start;
+                if(error && res.statusCode != 200)
+                        server.status = 404;
+                else
+                        server.status = res.statusCode;
         });
-        return server.latency;
+        return server.status;
 }
 
 function calculateColor()
 {
-        // latency scores of all instances, mapped to colors.
-        var instances = instanceServers.map( measureLatenancy ).map( function(latency)
+        var instances = instanceServers.map( measureStatus ).map( function(status)
         {
                 var color = "#cccccc";
-                if( !latency )
+                if( !status )
                         return {color: color};
-                if( latency > 1000 )
-                {
-                        color = "#ff0000";
-                }
-                else if( latency > 60 )
-                {
-                        color = "#ffff00";
-                }
-                else if( latency > 55 )
-                {
-                        color = "#f9f90A";
-                }
-                else if( latency > 50 )
-                {
-                        color = "#dffc04";
-                }
-                else if( latency > 40 )
-                {
-                        color = "#cccc00";
-                }
-                else if( latency > 30 )
-                {
-                        color = "#09af09";
-                }
-                else if( latency > 20 )
-                {
-                        color = "#04f204";
-                }
-                else if( latency > 10 )
+                if( status == 200 )
                 {
                         color = "#03fd03";
                 }
                 else
                 {
-                        color = "#00ff00";
+                        color = "#ff0000";
                 }
-                console.log( latency );
+                console.log( status );
                 return {color: color};
         });
         //console.log( instances );
