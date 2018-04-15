@@ -31,7 +31,7 @@ function measureStatus(server)
         request(options, function (error, res, body)
         {
                 console.log( error || res.statusCode, server.url);
-                if(error && res.statusCode != 200)
+                if(error || res.statusCode != 200)
                         server.status = 404;
                 else
                         server.status = res.statusCode;
